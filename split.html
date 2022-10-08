@@ -1,0 +1,38 @@
+<!doctype html>
+<html></html>
+<head>
+	<title>Split</title>
+</head>
+<body style="margin: 0">
+	<main id=main style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr"></main>
+	<script>
+		const tag = document.createElement('script');
+		tag.src = "https://www.youtube.com/iframe_api";
+		const firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		const streams = ["5cqoSgd7arc", "wJ7Dz5c7cbM", "jM6gzLwpAiE"];
+		for (const stream of streams) {
+			const player = new YT.Player('player', {
+				height: '390',
+				width: '640',
+				videoId: 'M7lc1UVf-VE',
+				playerVars: {
+					'playsinline': 1
+				},
+				events: {
+					'onReady': onPlayerReady,
+					'onStateChange': onPlayerStateChange
+				}
+			});
+			// window.main.innerHTML += `<iframe width="${screen.width / 2}" height="${screen.height / 2}" src="https://www.youtube.com/embed/${stream}?autoplay=1&mute=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media;" allowfullscreen></iframe>`;
+		}
+		if (document.body.requestFullscreen) {
+			document.body.addEventListener('keydown', function (e) {
+				if (e.altKey && e.key == "p") {
+					document.body.requestFullscreen();
+				}
+			});
+		}
+	</script>
+</body>
