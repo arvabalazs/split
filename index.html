@@ -6,6 +6,10 @@
 		.hide {
 			display: none !important;
 		}
+
+		iframe {
+			pointer-events: none;
+		}
 	</style>
 </head>
 <body style="margin: 0; background-color: black;">
@@ -27,10 +31,10 @@
 		<button onclick="start()">START</button>
 	</nav>
 	<main id="main" style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr">
-		<div id="player1"></div>
-		<div id="player2"></div>
-		<div id="player3"></div>
-		<div id="player4"></div>
+		<div class="player" id="player1"></div>
+		<div class="player" id="player2"></div>
+		<div class="player" id="player3"></div>
+		<div class="player" id="player4"></div>
 	</main>
 	<script>
 		const tag = document.createElement('script');
@@ -40,6 +44,10 @@
 
 		let players = [];
 		function start() {
+			for (const player of players) {
+				player.destroy();
+			}
+			players = [];
 			document.querySelectorAll(".stream_id").forEach(e => {
 				if (e.value.length > 0) {
 					players.push(new YT.Player(`player${players.length + 1}`, {
@@ -51,7 +59,8 @@
 							"autoplay": 1,
 							"mute": 1,
 							"controls": 0,
-							"modestbranding": 1
+							"modestbranding": 1,
+							"disablekb": 1
 						}
 					}));
 				}
@@ -59,7 +68,6 @@
 		}
 
 		function onYouTubeIframeAPIReady() { }
-		console.log(document.body.lastElementChild)
 
 		if (document.body.requestFullscreen) {
 			document.body.addEventListener('keydown', function (e) {
@@ -72,11 +80,6 @@
 					players[parseInt(e.key, 10) - 1].unMute();
 				}
 			});
-
-			document.body.onfullscreenchange = (event) => {
-				console.log(event)
-				// document.querySelector("nav").classList.toggle("hide");
-			}
 		}
 	</script>
 </body>
