@@ -3,6 +3,10 @@
 <head>
 	<title>Split</title>
 	<style>
+		body {
+			overflow: hidden;
+		}
+
 		.hide {
 			display: none !important;
 		}
@@ -35,13 +39,17 @@
 </head>
 <body style="margin: 0; background-color: black;">
 	<nav>
-		<div style="color: white">
-			<p>1. Add up to 4 YouTube or Twitch URLs</p>
-			<p>2. Press START which loads muted videos</p>
-			<p>3. Press 1, 2, 3 or 4 to switch stream</p>
-			<p>4. Press E to focus/unfocus the active stream</p>
-			<p>5. Press M to mute/unmute the active stream</p>
-			<p>6. Press F to go fullscreen and hide menu</p>
+		<div style="color: white; display: flex; flex-flow: row; gap: 16px">
+			<div>
+				<p>1. Add up to 4 YouTube or Twitch URLs</p>
+				<p>2. Press START which loads muted videos</p>
+				<p>3. Press 1, 2, 3 or 4 to switch stream</p>
+			</div>
+			<div>
+				<p>4. Press E to focus/unfocus the active stream</p>
+				<p>5. Press M to mute/unmute the active stream</p>
+				<p>6. Press F to go fullscreen and hide menu</p>
+			</div>
 		</div>
 
 		<input class="stream_id" id="player1_stream">
@@ -49,6 +57,7 @@
 		<input class="stream_id" id="player3_stream">
 		<input class="stream_id" id="player4_stream">
 		<button onclick="start()">START</button>
+		<a id=share_url>Share URL</a>
 	</nav>
 	<main id="main" style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr">
 		<div class="player" id="player1"></div>
@@ -74,6 +83,22 @@
 				player.player.setMuted(false);
 			}
 		}
+		const url = new URL(window.location);
+		let ind = 0;
+		for (const k of url.searchParams.keys()) {
+			document.querySelectorAll(".stream_id")[ind].value = decodeURIComponent(url.searchParams.get(k));
+			++ind;
+		}
+
+		let share_urls_params = [];
+		ind = 0;
+		document.querySelectorAll(".stream_id").forEach(e => {
+			share_urls_params.push(`p${ind}=${encodeURIComponent(e.value)}`);
+			++ind;
+		});
+
+		const share_url = window.location.protocol + "//" + window.location.hostname + location.pathname + "?" + share_urls_params.join("&");
+		document.getElementById("share_url").href=share_url;
 
 		let players = [];
 		function start() {
