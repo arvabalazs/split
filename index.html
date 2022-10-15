@@ -10,6 +10,14 @@
 		iframe {
 			pointer-events: none;
 		}
+
+		.focused {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+		}
 	</style>
 </head>
 <body style="margin: 0; background-color: black;">
@@ -68,16 +76,39 @@
 		}
 
 		function onYouTubeIframeAPIReady() { }
+		let focused = false;
+		let active = 0;
+		let muted = true;
+
+		function mute_all() {
+			for (const player of players) {
+				player.mute();
+			}
+		}
 
 		if (document.body.requestFullscreen) {
 			document.body.addEventListener('keydown', function (e) {
 				if (e.key == "f" && document.fullscreenEnabled) {
 					document.getElementById("main").requestFullscreen();
 				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
-					for (const player of players) {
-						player.mute();
+					active = parseInt(e.key, 10) - 1;
+					mute_all();
+					players[active].unMute();
+					muted = false;
+				} else if (e.key == "e") {
+					document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
+					const player = document.getElementById(`player${active + 1}`);
+					focused = !focused;
+					player.classList.toggle("focused");
+					player.classList.toggle("hide");
+				} else if (e.key == "m") {
+					if (muted && active >= 0) {
+						players[active].unMute();
+						muted = false;
+					} else {
+						muted = true;
+						mute_all();
 					}
-					players[parseInt(e.key, 10) - 1].unMute();
 				}
 			});
 		}
