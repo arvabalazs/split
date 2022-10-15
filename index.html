@@ -11,10 +11,23 @@
 			pointer-events: none;
 		}
 
+		.player:not(.focused) {
+			border: 1px transparent solid;
+		}
+
+		.active:not(.focused) {
+			border: 1px yellow solid;
+		}
+
 		.focused {
 			position: absolute;
 			left: 0;
 			top: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		.focused>iframe {
 			width: 100%;
 			height: 100%;
 		}
@@ -23,13 +36,12 @@
 <body style="margin: 0; background-color: black;">
 	<nav>
 		<div style="color: white">
-			<div style="display: flex; flex-flow: row; align-items: center; gap: 16px">
-				<p>1. Add up to 4 YouTube Stream IDs and press START which loads muted videos</p>
-				<img width="418" height="35" src="data:image/png;base64,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">
-			</div>
+			<p>1. Add up to 4 YouTube or Twitch URLs</p>
 			<p>2. Press START which loads muted videos</p>
-			<p>3. Press 1, 2, 3 or 4 to unmute a video</p>
-			<p>4. Press F to go fullscreen and hide menu</p>
+			<p>3. Press 1, 2, 3 or 4 to switch stream</p>
+			<p>4. Press E to focus/unfocus the active stream</p>
+			<p>5. Press M to mute/unmute the active stream</p>
+			<p>6. Press F to go fullscreen and hide menu</p>
 		</div>
 
 		<input class="stream_id" id="player1_stream">
@@ -44,11 +56,24 @@
 		<div class="player" id="player3"></div>
 		<div class="player" id="player4"></div>
 	</main>
+	<script src="https://www.youtube.com/iframe_api"></script>
+	<script src="https://player.twitch.tv/js/embed/v1.js"></script>
 	<script>
-		const tag = document.createElement('script');
-		tag.src = "https://www.youtube.com/iframe_api";
-		const firstScriptTag = document.getElementsByTagName('script')[0];
-		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+		function mute(player) {
+			if (player.kind == "yt")
+				player.player.mute();
+			else if (player.kind == "twitch") {
+				player.player.setMuted(true);
+			}
+		}
+
+		function unmute(player) {
+			if (player.kind == "yt") {
+				player.player.unMute();
+			} else if (player.kind == "twitch") {
+				player.player.setMuted(false);
+			}
+		}
 
 		let players = [];
 		function start() {
@@ -58,19 +83,38 @@
 			players = [];
 			document.querySelectorAll(".stream_id").forEach(e => {
 				if (e.value.length > 0) {
-					players.push(new YT.Player(`player${players.length + 1}`, {
-						width: screen.width / 2,
-						height: screen.height / 2,
-						videoId: e.value,
-						playerVars: {
-							'playsinline': 1,
-							"autoplay": 1,
-							"mute": 1,
-							"controls": 0,
-							"modestbranding": 1,
-							"disablekb": 1
+					const url = new URL(e.value);
+					if (url.hostname === "youtube.com" || url.hostname === "www.youtube.com") {
+						const videoId = url.searchParams.get("v");
+						if (videoId) {
+							players.push({
+								kind: 'yt',
+								player: new YT.Player(`player${players.length + 1}`, {
+									width: (screen.width - 2) / 2,
+									height: (screen.height - 2) / 2,
+									videoId,
+									playerVars: {
+										'playsinline': 1,
+										"autoplay": 1,
+										"mute": 1,
+										"controls": 0,
+										"modestbranding": 1,
+										"disablekb": 1
+									}
+								})
+							});
 						}
-					}));
+					} else if (url.hostname === "twitch.tv" || url.hostname === "www.twitch.tv") {
+						const options = {
+							width: (screen.width - 2) / 2,
+							height: (screen.height - 2) / 2,
+							channel: url.pathname.substring(1),
+						};
+						players.push({
+							kind: 'twitch',
+							player: new Twitch.Player(`player${players.length + 1}`, options)
+						});
+					}
 				}
 			});
 		}
@@ -79,11 +123,14 @@
 		let focused = false;
 		let active = 0;
 		let muted = true;
+		document.querySelectorAll(".player")[active].classList.toggle("active");
 
 		function mute_all() {
 			for (const player of players) {
-				player.mute();
+				mute(player);
 			}
+
+			document.querySelectorAll(".player").forEach(e => e.classList.remove("active"))
 		}
 
 		if (document.body.requestFullscreen) {
@@ -93,7 +140,8 @@
 				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 					active = parseInt(e.key, 10) - 1;
 					mute_all();
-					players[active].unMute();
+					unmute(players[active]);
+					document.querySelectorAll(".player")[active].classList.toggle("active");
 					muted = false;
 				} else if (e.key == "e") {
 					document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
@@ -103,7 +151,8 @@
 					player.classList.toggle("hide");
 				} else if (e.key == "m") {
 					if (muted && active >= 0) {
-						players[active].unMute();
+						unmute(players[active]);
+						document.querySelectorAll(".player")[active].classList.toggle("active");
 						muted = false;
 					} else {
 						muted = true;
