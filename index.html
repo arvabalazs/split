@@ -72,6 +72,7 @@
 			if (player.kind == "yt")
 				player.player.mute();
 			else if (player.kind == "twitch") {
+				player.player.setVolume(0.0);
 				player.player.setMuted(true);
 			}
 		}
@@ -80,6 +81,7 @@
 			if (player.kind == "yt") {
 				player.player.unMute();
 			} else if (player.kind == "twitch") {
+				player.player.setVolume(1.0);
 				player.player.setMuted(false);
 			}
 		}
