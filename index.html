@@ -101,18 +101,9 @@
 			++ind;
 		}
 
-		let share_urls_params = [];
-		ind = 0;
-		document.querySelectorAll(".stream_id").forEach(e => {
-			share_urls_params.push(`p${ind}=${encodeURIComponent(e.value)}`);
-			++ind;
-		});
-
-		const share_url = window.location.protocol + "//" + window.location.hostname + location.pathname + "?" + share_urls_params.join("&");
-		document.getElementById("share_url").href=share_url;
-
 		let players = [];
 		function start() {
+			let share_urls_params = [];
 			for (const player of players) {
 				destroy(player);
 			}
@@ -151,8 +142,13 @@
 							player: new Twitch.Player(`player${players.length + 1}`, options)
 						});
 					}
+
+					share_urls_params.push(`p${share_urls_params.length}=${encodeURIComponent(e.value)}`);
 				}
 			});
+
+			const share_url = window.location.protocol + "//" + window.location.hostname + location.pathname + "?" + share_urls_params.join("&");
+			document.getElementById("share_url").href = share_url;
 		}
 
 		function onYouTubeIframeAPIReady() { }
