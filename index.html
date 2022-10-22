@@ -104,7 +104,7 @@
 			<span><strong>F</strong> to go fullscreen and hide menu</span>
 		</div>
 	</nav>
-	<main id=main style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr">
+	<main id=main class="hide">
 		<div class="player" id=player1></div>
 		<div class="player" id=player2></div>
 		<div class="player" id=player3></div>
@@ -135,7 +135,7 @@
 			if (player.kind == "yt") {
 				player.player.destroy();
 			} else if (player.kind == "twitch") {
-				// TODO: what should we do with twitch?e
+				// TODO: what should we do with twitch?
 			}
 		}
 
@@ -148,6 +148,7 @@
 
 		let players = [];
 		function start() {
+			document.getElementById("main").classList.remove("hide");
 			let share_urls_params = [];
 			for (const player of players) {
 				destroy(player);
