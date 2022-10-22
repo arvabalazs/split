@@ -5,6 +5,7 @@
 	<style>
 		body {
 			overflow: hidden;
+			font-size: 150%;
 		}
 
 		.hide {
@@ -35,29 +36,73 @@
 			width: 100%;
 			height: 100%;
 		}
+
+		.row {
+			display: flex;
+		}
+
+		.col {
+			display: flex;
+			flex-flow: column;
+		}
+
+		nav {
+			display: flex;
+			justify-content: stretch;
+			gap: 2rem;
+			margin-inline: 2rem
+		}
+
+		main {
+			display: grid;
+			grid-template-rows: 1fr 1fr;
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.stream_id {
+			padding: 4px;
+			margin-bottom: 8px;
+			flex-grow: 1;
+		}
+
+		button {
+			background-color: antiquewhite;
+			padding: 1rem;
+			font-weight: bold;
+		}
 	</style>
 </head>
-<body style="margin: 0; background-color: black;">
+<body style="margin: 0; background-color: black; color: white">
 	<nav>
-		<div style="color: white; display: flex; flex-flow: row; gap: 16px">
-			<div>
-				<p>1. Add up to 4 YouTube or Twitch URLs</p>
-				<p>2. Press START which loads muted videos</p>
-				<p>3. Press 1, 2, 3 or 4 to switch stream</p>
-			</div>
-			<div>
-				<p>4. Press E to focus/unfocus the active stream</p>
-				<p>5. Press M to mute/unmute the active stream</p>
-				<p>6. Press F to go fullscreen and hide menu</p>
-			</div>
-		</div>
-
+		<div class="col" style="flex-grow: 2">
+			<h2>Add up to 4 YouTube or Twitch URLs and press START which loads muted videos</h2>
+			<!-- TODO add labels form these inputs -->
+			<div class="row" style="gap: 8px">
+				<label>Stream 1</label>
 		<input class="stream_id" id=player1_stream>
+			</div>
+			<div class="row" style="gap: 8px">
+				<label>Stream 2</label>
 		<input class="stream_id" id=player2_stream>
+			</div>
+			<div class="row" style="gap: 8px">
+				<label>Stream 3</label>
 		<input class="stream_id" id=player3_stream>
+			</div>
+			<div class="row" style="gap: 8px">
+				<label>Stream 4</label>
 		<input class="stream_id" id=player4_stream>
-		<button onclick="start()">START</button>
+			</div>
+			<button accesskey="s" onclick="start()">START (Alt+S)</button>
 		<a id=share_url>Share URL</a>
+		</div>
+		<div class="col" style="flex-grow: 2; white-space: nowrap;">
+			<h2>Hotkeys</h2>
+			<span><strong>1</strong>, <strong>3</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
+			<span><strong>E</strong> to focus/unfocus the active stream</span>
+			<span><strong>M</strong> to mute/unmute the active stream</span>
+			<span><strong>F</strong> to go fullscreen and hide menu</span>
+		</div>
 	</nav>
 	<main id=main style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr">
 		<div class="player" id=player1></div>
