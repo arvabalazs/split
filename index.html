@@ -139,8 +139,10 @@
 			if (player.kind == "yt") {
 				player.player.destroy();
 			} else if (player.kind == "twitch") {
-				// TODO: what should we do with twitch?
+				player.elem.innerHTML = "";
 			}
+
+			delete player;
 		}
 
 		const url = new URL(window.location);
@@ -192,7 +194,8 @@
 						};
 						players.push({
 							kind: 'twitch',
-							player: new Twitch.Player(`player${players.length + 1}`, options)
+							player: new Twitch.Player(`player${players.length + 1}`, options),
+							elem: document.getElementById(`player${players.length + 1}`)
 						});
 					}
 
