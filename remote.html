@@ -1,0 +1,91 @@
+<!doctype html>
+<html></html>
+<head>
+	<title>Split</title>
+	<style>
+		body {
+			overflow: hidden;
+			font-size: 150%;
+		}
+
+		.hide {
+			display: none !important;
+		}
+
+		.row {
+			display: flex;
+		}
+
+		.col {
+			display: flex;
+			flex-flow: column;
+		}
+
+		main {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			grid-template-rows: 1fr 1fr;
+			gap: 0.5rem;
+			height: 100vh;
+		}
+
+		button {
+			background-color: antiquewhite;
+			padding: 1rem;
+			font-weight: bold;
+			font-size: xx-large;
+		}
+	</style>
+</head>
+<body style="margin: 0; background-color: black; color: white">
+	<main id=main>
+		<button class="player" id=player1 data-ind=0 onclick="switch_channel(this)">1</button>
+		<button class="player" id=player2 data-ind=1 onclick="switch_channel(this)">2</button>
+		<button class="player" id=player3 data-ind=2 onclick="switch_channel(this)">3</button>
+		<button class="player" id=player4 data-ind=3 onclick="switch_channel(this)">4</button>
+	</main>
+	<p id=no_id_error class="hide">There is no id in the URL! Set a URL which has "id=..." part</p>
+	<div id="connection_status"></div>
+	<script src=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2></script>
+	<script type="module">
+		const url = new URL(window.location);
+		const id = url.searchParams.get("id");
+		if (id) {
+			const sb = supabase.createClient(
+				'https://voatjrqrfzayxejnovtl.supabase.co',
+				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXRqcnFyZnpheXhlam5vdnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjU5MTQxODEsImV4cCI6MTk4MTQ5MDE4MX0.gkepgBvJ5SKk4mWt6k90i9zsUWE6weOA7MhjZZDBjjw',
+				{
+					realtime: {
+						params: {
+							eventsPerSecond: 10,
+						},
+					},
+				}
+			);
+
+
+			let connected = false;
+			const channel = sb.channel(id)
+			channel.on('broadcast', { event: 'switch-channel' }, (payload) => console.log(payload))
+				.subscribe((status) => {
+					if (status === 'SUBSCRIBED') {
+						document.getElementById("connection_status").textContent = "CONNECTED";
+						connected = true;
+					}
+				});
+			let active = 0;
+			window.switch_channel = (btn) => {
+				active = btn.dataset.ind;
+				console.log(active)
+				channel.send({
+					type: 'broadcast',
+					event: 'switch-channel',
+					payload: active,
+				});
+			}
+		} else {
+			window.main.classList.add("hide");
+			window.no_id_error.classList.remove("hide");
+		}
+	</script>
+</body>

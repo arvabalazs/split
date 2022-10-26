@@ -106,6 +106,10 @@
 			<span><strong>E</strong> to focus/unfocus the active stream</span>
 			<span><strong>M</strong> to mute/unmute the active stream</span>
 			<span><strong>F</strong> to go fullscreen and hide menu</span>
+			<button id=share_btn class="hide" onclick="share()">SHARE</button>
+			<div>
+				<span id=connection_status></span>
+			</div>
 		</div>
 	</nav>
 	<main id=main class="hide">
@@ -114,9 +118,99 @@
 		<div class="player" id=player3></div>
 		<div class="player" id=player4></div>
 	</main>
-	<script src="https://www.youtube.com/iframe_api"></script>
-	<script src="https://player.twitch.tv/js/embed/v1.js"></script>
-	<script>
+	<script src=https://www.youtube.com/iframe_api></script>
+	<script src=https://player.twitch.tv/js/embed/v1.js></script>
+	<script src=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2></script>
+	<script type="module">
+		const url = new URL(window.location);
+		let id = url.searchParams.get("id");
+		let caster_id = null;
+		let focused = false;
+		let active = 0;
+		let muted = true;
+		document.querySelectorAll(".player")[active].classList.toggle("active");
+
+		const sb = supabase.createClient(
+			'https://voatjrqrfzayxejnovtl.supabase.co',
+			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXRqcnFyZnpheXhlam5vdnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjU5MTQxODEsImV4cCI6MTk4MTQ5MDE4MX0.gkepgBvJ5SKk4mWt6k90i9zsUWE6weOA7MhjZZDBjjw',
+			{
+				realtime: {
+					params: {
+						eventsPerSecond: 10,
+					},
+				},
+			}
+		)
+
+		const { data: { user } } = await sb.auth.getUser();
+		if (user) {
+			document.getElementById("share_btn").classList.remove("hide");
+		}
+
+		if (id) {
+			const { data, error } = await sb.from('casts').select().eq('id', id);
+			if (data && data.length == 1 && !error) {
+				const cast = data[0];
+				const streams = document.querySelectorAll(".stream_id");
+				streams[0].value = cast.stream_1 ? cast.stream_1 : "";
+				streams[1].value = cast.stream_2 ? cast.stream_2 : "";
+				streams[2].value = cast.stream_3 ? cast.stream_3 : "";
+				streams[3].value = cast.stream_4 ? cast.stream_4 : "";
+
+				caster_id = cast.user_id;
+				document.getElementById("share_btn").classList.remove("hide");
+			}
+
+			let connected = false;
+			const admin = user && user.id === caster_id;
+			const channel = sb.channel(id)
+			if (admin) {
+				// Subscribe registers your client with the server
+				channel.on('broadcast', { event: 'switch-channel' }, (e) => {
+					active = parseInt(e.payload, 10);
+					switch_channel();
+				}).subscribe((status) => {
+					if (status === 'SUBSCRIBED') {
+						document.getElementById("connection_status").textContent = "CONNECTED";
+						connected = true;
+					}
+				});
+			} else {
+				channel.on('broadcast', { event: 'switch-channel' }, (e) => {
+					active = parseInt(e.payload, 10);
+					switch_channel();
+				}).subscribe((status) => {
+					if (status === 'SUBSCRIBED') {
+						document.getElementById("connection_status").textContent = "CONNECTED";
+						connected = true;
+					}
+				});
+			}
+		}
+
+		window.share = async () => {
+			if (id) {
+				navigator.clipboard.writeText(window.location);
+			} else {
+				const s=streams();
+				const { data, error } = await sb
+					.from('casts')
+					.insert([{
+						stream_1: s[0]?.url,
+						stream_2: s[1]?.url,
+						stream_3: s[2]?.url,
+						stream_4: s[3]?.url,
+					}])
+					.select('id');
+
+				if (data && data.length == 1 && !error) {
+					id = data[0].id;
+					navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?id=" + id);
+				} else {
+					console.error(error);
+				}
+			}
+		}
 		function mute(player) {
 			if (player.kind == "yt")
 				player.player.mute();
@@ -142,76 +236,76 @@
 				player.elem.innerHTML = "";
 			}
 
-			delete player;
-		}
-
-		const url = new URL(window.location);
-		let ind = 0;
-		for (const k of url.searchParams.keys()) {
-			document.querySelectorAll(".stream_id")[ind].value = decodeURIComponent(url.searchParams.get(k));
-			++ind;
+			// delete player;
 		}
 
 		let players = [];
-		function start() {
-			document.getElementById("main").classList.remove("hide");
-			let share_urls_params = [];
-			for (const player of players) {
-				destroy(player);
-			}
-			players = [];
+		function streams() {
+			let r = [];
 			document.querySelectorAll(".stream_id").forEach(e => {
 				if (e.value.length > 0) {
 					const url = new URL(e.value);
 					if (url.hostname === "youtube.com" || url.hostname === "www.youtube.com") {
 						const videoId = url.searchParams.get("v");
 						if (videoId) {
-							players.push({
-								kind: 'yt',
-								player: new YT.Player(`player${players.length + 1}`, {
-									width: (screen.width - 2) / 2,
-									height: (screen.height - 2) / 2,
-									videoId,
-									playerVars: {
-										'playsinline': 1,
-										"autoplay": 1,
-										"mute": 1,
-										"controls": 0,
-										"modestbranding": 1,
-										"disablekb": 1,
-										"cc_load_policy": 0,
-										"fs": 0,
-										"iv_load_policy": 3
-									}
-								})
-							});
+							r.push({ kind: 'yt', url: e.value });
 						}
 					} else if (url.hostname === "twitch.tv" || url.hostname === "www.twitch.tv") {
-						const options = {
-							width: (screen.width - 2) / 2,
-							height: (screen.height - 2) / 2,
-							channel: url.pathname.substring(1),
-						};
-						players.push({
-							kind: 'twitch',
-							player: new Twitch.Player(`player${players.length + 1}`, options),
-							elem: document.getElementById(`player${players.length + 1}`)
-						});
+						r.push({ kind: 'twitch', url: e.value });
 					}
-
-					share_urls_params.push(`p${share_urls_params.length}=${encodeURIComponent(e.value)}`);
 				}
 			});
 
-			const share_url = window.location.protocol + "//" + window.location.hostname + location.pathname + "?" + share_urls_params.join("&");
-			document.getElementById("share_url").href = share_url;
+			return r;
 		}
-
-		function onYouTubeIframeAPIReady() { }
-		let focused = false;
-		let active = 0;
-		let muted = true;
-		document.querySelectorAll(".player")[active].classList.toggle("active");
+		window.start = () => {
+			document.getElementById("main").classList.remove("hide");
+			for (const player of players) {
+				destroy(player);
+			}
+			players = [];
+			streams().forEach(s => {
+				const url = new URL(s.url);
+				if (s.kind === 'yt') {
+					const videoId = url.searchParams.get("v");
+					if (videoId) {
+						players.push({
+							kind: s.kind,
+							player: new YT.Player(`player${players.length + 1}`, {
+								width: (screen.width - 2) / 2,
+								height: (screen.height - 2) / 2,
+								videoId,
+								playerVars: {
+									'playsinline': 1,
+									"autoplay": 1,
+									"mute": 1,
+									"controls": 0,
+									"modestbranding": 1,
+									"disablekb": 1,
+									"cc_load_policy": 0,
+									"fs": 0,
+									"iv_load_policy": 3
+								}
+							}),
+							raw: s.url
+						});
+					}
+				} else if (s.kind === "twitch") {
+					const options = {
+						width: (screen.width - 2) / 2,
+						height: (screen.height - 2) / 2,
+						channel: url.pathname.substring(1),
+					};
+					players.push({
+						kind: s.kind,
+						player: new Twitch.Player(`player${players.length + 1}`, options),
+						raw: s.url,
+						muted: true, // TODO mute twitch stream at the start
+						elem: document.getElementById(`player${players.length + 1}`)
+					});
+				}
+			});
+		}
 
 		function mute_all() {
 			for (const player of players) {
@@ -221,16 +315,29 @@
 			document.querySelectorAll(".player").forEach(e => e.classList.remove("active"))
 		}
 
+		function switch_channel() {
+			console.log(players)
+			mute_all();
+			console.log(active, players[active])
+			unmute(players[active]);
+			document.querySelectorAll(".player")[active].classList.toggle("active");
+			muted = false;
+		}
+
 		if (document.body.requestFullscreen) {
 			document.body.addEventListener('keydown', function (e) {
 				if (e.key == "f" && document.fullscreenEnabled) {
 					document.getElementById("main").requestFullscreen();
 				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 					active = parseInt(e.key, 10) - 1;
-					mute_all();
-					unmute(players[active]);
-					document.querySelectorAll(".player")[active].classList.toggle("active");
-					muted = false;
+					switch_channel();
+					if (admin && connected) {
+						channel.send({
+							type: 'broadcast',
+							event: 'switch-channel',
+							payload: active,
+						});
+					}
 				} else if (e.key == "e") {
 					document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
 					const player = document.getElementById(`player${active + 1}`);
@@ -248,6 +355,10 @@
 					}
 				}
 			});
+		}
+
+		if (id) {
+			start();
 		}
 	</script>
 </body>
