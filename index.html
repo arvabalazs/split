@@ -174,28 +174,17 @@
 			let connected = false;
 			const admin = user && user.id === caster_id;
 			const channel = sb.channel(id)
-			if (admin) {
-				// Subscribe registers your client with the server
-				channel.on('broadcast', { event: 'switch-channel' }, (e) => {
-					active = parseInt(e.payload, 10);
-					switch_channel();
-				}).subscribe((status) => {
-					if (status === 'SUBSCRIBED') {
-						document.getElementById("connection_status").textContent = "CONNECTED";
-						connected = true;
-					}
-				});
-			} else {
-				channel.on('broadcast', { event: 'switch-channel' }, (e) => {
-					active = parseInt(e.payload, 10);
-					switch_channel();
-				}).subscribe((status) => {
-					if (status === 'SUBSCRIBED') {
-						document.getElementById("connection_status").textContent = "CONNECTED";
-						connected = true;
-					}
-				});
-			}
+			channel.on('broadcast', { event: 'switch-channel' }, (e) => {
+				active = parseInt(e.payload, 10);
+				switch_channel();
+			}).on('broadcast', { event: 'focus' }, (e) => {
+				focus();
+			}).subscribe((status) => {
+				if (status === 'SUBSCRIBED') {
+					document.getElementById("connection_status").textContent = "CONNECTED";
+					connected = true;
+				}
+			});
 		}
 
 		window.share = async () => {
