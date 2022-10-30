@@ -323,7 +323,7 @@
 
 		if (document.body.requestFullscreen) {
 			document.body.addEventListener('keydown', function (e) {
-				if (e.key == "f" && document.fullscreenEnabled) {
+				if (e.key == "f" && document.fullscreenEnabled && players.length > 0) {
 					document.getElementById("main").requestFullscreen();
 				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 					active = parseInt(e.key, 10) - 1;
@@ -335,9 +335,9 @@
 							payload: active,
 						});
 					}
-				} else if (e.key == "e") {
+				} else if (e.key == "e" && players.length > 0) {
 					focus();
-				} else if (e.key == "m") {
+				} else if (e.key == "m" && players.length > 0) {
 					if (muted && active >= 0) {
 						unmute(players[active]);
 						document.querySelectorAll(".player")[active].classList.toggle("active");
