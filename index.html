@@ -1,5 +1,5 @@
 <!doctype html>
-<html></html>
+<html>
 <head>
 	<title>Split</title>
 	<style>
@@ -104,7 +104,7 @@
 		</div>
 		<div class="col" style="flex-grow: 2; white-space: nowrap;">
 			<span>Hotkeys</span>
-			<span><strong>1</strong>, <strong>3</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
+			<span><strong>1</strong>, <strong>2</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
 			<span><strong>E</strong> to focus/unfocus the active stream</span>
 			<span><strong>M</strong> to mute/unmute the active stream</span>
 			<span><strong>F</strong> to go fullscreen and hide menu</span>
@@ -315,9 +315,7 @@
 		}
 
 		function switch_channel() {
-			console.log(players)
 			mute_all();
-			console.log(active, players[active])
 			unmute(players[active]);
 			document.querySelectorAll(".player")[active].classList.toggle("active");
 			muted = false;
