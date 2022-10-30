@@ -132,6 +132,14 @@
 		let muted = true;
 		document.querySelectorAll(".player")[active].classList.toggle("active");
 
+		function focus() {
+			document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
+			const player = document.getElementById(`player${active + 1}`);
+			focused = !focused;
+			player.classList.toggle("focused");
+			player.classList.toggle("hide");
+		}
+
 		const sb = supabase.createClient(
 			'https://voatjrqrfzayxejnovtl.supabase.co',
 			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXRqcnFyZnpheXhlam5vdnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjU5MTQxODEsImV4cCI6MTk4MTQ5MDE4MX0.gkepgBvJ5SKk4mWt6k90i9zsUWE6weOA7MhjZZDBjjw',
@@ -341,11 +349,7 @@
 						});
 					}
 				} else if (e.key == "e") {
-					document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
-					const player = document.getElementById(`player${active + 1}`);
-					focused = !focused;
-					player.classList.toggle("focused");
-					player.classList.toggle("hide");
+					focus();
 				} else if (e.key == "m") {
 					if (muted && active >= 0) {
 						unmute(players[active]);
