@@ -315,9 +315,7 @@
 		}
 
 		function switch_channel() {
-			console.log(players)
 			mute_all();
-			console.log(active, players[active])
 			unmute(players[active]);
 			document.querySelectorAll(".player")[active].classList.toggle("active");
 			muted = false;
@@ -330,13 +328,13 @@
 				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 					active = parseInt(e.key, 10) - 1;
 					switch_channel();
-					if (admin && connected) {
-						channel.send({
-							type: 'broadcast',
-							event: 'switch-channel',
-							payload: active,
-						});
-					}
+					// if (admin && connected) {
+					// 	channel.send({
+					// 		type: 'broadcast',
+					// 		event: 'switch-channel',
+					// 		payload: active,
+					// 	});
+					// }
 				} else if (e.key == "e") {
 					focus();
 				} else if (e.key == "m") {
