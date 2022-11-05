@@ -1,5 +1,5 @@
 <!doctype html>
-<html></html>
+<html>
 <head>
 	<title>Split</title>
 	<style>
@@ -98,19 +98,29 @@
 						<input class="stream_id" id=player4_stream>
 					</div>
 				</div>
-				<button accesskey="s" onclick="start()">START (Alt+S)</button>
+				<button accesskey="s" class="col" onclick="start()" style="justify-content: center; padding: 1rem">
+					<span>START</span>
+					<span>(Alt+S)</span>
+				</button>
 			</div>
 			<a id=share_url>Share URL</a>
 		</div>
 		<div class="col" style="flex-grow: 2; white-space: nowrap;">
 			<span>Hotkeys</span>
-			<span><strong>1</strong>, <strong>3</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
+			<span><strong>1</strong>, <strong>2</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
 			<span><strong>E</strong> to focus/unfocus the active stream</span>
 			<span><strong>M</strong> to mute/unmute the active stream</span>
 			<span><strong>F</strong> to go fullscreen and hide menu</span>
-			<button id=share_btn class="hide" onclick="share()">SHARE</button>
 			<div>
 				<span id=connection_status></span>
+			</div>
+			<div id=login_box class="row hide">
+				<input id=login-email type="email" />
+				<button onclick="login()">LOGIN</button>
+			</div>
+			<div id=user_box class="row hide">
+				<span id=email></span>
+				<button id=share_btn onclick="share()">SHARE</button>
 			</div>
 		</div>
 	</nav>
@@ -156,9 +166,21 @@
 			}
 		)
 
+		window.login = async () => {
+			await sb.auth.signInWithOtp({
+				email: document.getElementById("login-email").value
+			});
+		}
+
 		const { data: { user } } = await sb.auth.getUser();
 		if (user) {
-			document.getElementById("share_btn").classList.remove("hide");
+			document.getElementById("user_box").classList.remove("hide");
+			document.getElementById("login_box").classList.add("hide");
+
+			document.getElementById("login-email").textContent = user.email;
+		} else {
+			document.getElementById("user_box").classList.add("hide");
+			document.getElementById("login_box").classList.remove("hide");
 		}
 
 		if (id) {
@@ -172,7 +194,6 @@
 				streams[3].value = cast.stream_4 ? cast.stream_4 : "";
 
 				caster_id = cast.user_id;
-				document.getElementById("share_btn").classList.remove("hide");
 			}
 
 			let connected = false;
@@ -329,7 +350,7 @@
 
 		if (document.body.requestFullscreen) {
 			document.body.addEventListener('keydown', function (e) {
-				if (e.key == "f" && document.fullscreenEnabled) {
+				if (e.key == "f" && document.fullscreenEnabled && players.length > 0) {
 					document.getElementById("main").requestFullscreen();
 				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 					active = parseInt(e.key, 10) - 1;
@@ -343,7 +364,7 @@
 					// }
 				} else if (e.key == "e") {
 					focus();
-				} else if (e.key == "m") {
+				} else if (e.key == "m" && players.length > 0) {
 					if (muted && active >= 0) {
 						unmute(players[active]);
 						document.querySelectorAll(".player")[active].classList.toggle("active");
