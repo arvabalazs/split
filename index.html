@@ -60,7 +60,6 @@
 
 		.stream_id {
 			padding: 4px;
-			flex-grow: 1;
 		}
 
 		button {
@@ -76,26 +75,26 @@
 </head>
 <body style="margin: 0; background-color: black; color: white">
 	<nav>
-		<div class="col" style="flex-grow: 2">
+		<div class="col">
 			<span>Add up to 4 YouTube or Twitch URLs and press START which loads muted videos</span>
 			<!-- TODO add labels form these inputs -->
 			<div class="row" style="gap: 4px">
-				<div style="flex-grow: 1">
+				<div>
 					<div class="row" style="gap: 4px">
-						<label>Stream 1</label>
-						<input class="stream_id" id=player1_stream>
+						<label>1</label>
+						<input size="100" class="stream_id" id=player1_stream>
 					</div>
 					<div class="row" style="gap: 4px">
-						<label>Stream 2</label>
-						<input class="stream_id" id=player2_stream>
+						<label>2</label>
+						<input size="100" class="stream_id" id=player2_stream>
 					</div>
 					<div class="row" style="gap: 4px">
-						<label>Stream 3</label>
-						<input class="stream_id" id=player3_stream>
+						<label>3</label>
+						<input size="100" class="stream_id" id=player3_stream>
 					</div>
 					<div class="row" style="gap: 4px">
-						<label>Stream 4</label>
-						<input class="stream_id" id=player4_stream>
+						<label>4</label>
+						<input size="100" class="stream_id" id=player4_stream>
 					</div>
 				</div>
 				<button accesskey="s" class="col" onclick="start()" style="justify-content: center; padding: 1rem">
@@ -103,7 +102,6 @@
 					<span>(Alt+S)</span>
 				</button>
 			</div>
-			<a id=share_url>Share URL</a>
 		</div>
 		<div class="col" style="flex-grow: 2; white-space: nowrap;">
 			<span>Hotkeys</span>
@@ -119,8 +117,9 @@
 				<button onclick="login()">LOGIN</button>
 			</div>
 			<div id=user_box class="row hide">
-				<span id=email></span>
-				<button id=share_btn onclick="share()">SHARE</button>
+				<span id=user-email></span>
+				<button id=update_btn onclick="update()">UPDATE</button>
+				<a id=share_url>Share URL</a>
 			</div>
 		</div>
 	</nav>
@@ -177,7 +176,7 @@
 			document.getElementById("user_box").classList.remove("hide");
 			document.getElementById("login_box").classList.add("hide");
 
-			document.getElementById("login-email").textContent = user.email;
+			document.getElementById("user-email").textContent = user.email;
 		} else {
 			document.getElementById("user_box").classList.add("hide");
 			document.getElementById("login_box").classList.remove("hide");
@@ -208,13 +207,17 @@
 				restart();
 			}).subscribe((status) => {
 				if (status === 'SUBSCRIBED') {
-					document.getElementById("connection_status").textContent = "CONNECTED";
+					document.getElementById("user-email").style.color="yellow"
 					connected = true;
 				}
 			});
+
+			document.getElementById("update_btn").innerText="UPDATE"
+		} else {
+			document.getElementById("update_btn").innerText="SAVE"
 		}
 
-		window.share = async () => {
+		window.update = async () => {
 			const s = streams();
 			if (id) {
 				const { data, error } = await sb
@@ -246,6 +249,7 @@
 				}
 			}
 		}
+
 		function mute(player) {
 			if (player.kind == "yt")
 				player.player.mute();
