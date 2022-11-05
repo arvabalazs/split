@@ -140,6 +140,10 @@
 			player.classList.toggle("hide");
 		}
 
+		function restart() {
+			window.location.reload();
+		}
+
 		const sb = supabase.createClient(
 			'https://voatjrqrfzayxejnovtl.supabase.co',
 			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXRqcnFyZnpheXhlam5vdnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjU5MTQxODEsImV4cCI6MTk4MTQ5MDE4MX0.gkepgBvJ5SKk4mWt6k90i9zsUWE6weOA7MhjZZDBjjw',
@@ -179,6 +183,8 @@
 				switch_channel();
 			}).on('broadcast', { event: 'focus' }, (e) => {
 				focus();
+			}).on('broadcast', { event: 'restart' }, (e) => {
+				restart();
 			}).subscribe((status) => {
 				if (status === 'SUBSCRIBED') {
 					document.getElementById("connection_status").textContent = "CONNECTED";
