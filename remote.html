@@ -5,6 +5,9 @@
 		<style>
 			body {
 				height: 100vh;
+				color: red;
+				margin: 0;
+				background-color: black
 			}
 
 			.hide {
@@ -23,26 +26,29 @@
 			main {
 				display: grid;
 				grid-template-columns: 1fr 1fr;
+				grid-template-rows: 3fr 3fr 1fr;
 				gap: 0.5rem;
 				height: 100vh;
+				color: inherit;
 			}
 
 			button {
-				background-color: antiquewhite;
+				background-color: slategray;
 				padding: 1rem;
 				font-weight: bold;
-				font-size: xx-large;
+				font-size: 500%;
+				color: inherit;
 			}
 		</style>
 	</head>
-	<body style="margin: 0; background-color: black; color: white">
+	<body>
 		<main id=main>
-			<button onclick="">Mute</button>
-			<button onclick='channel.send({type: "broadcast",event: "focus"});'>Focus</button>
 			<button class="player" id=player1 data-ind=0 onclick="switch_channel(this)">1</button>
 			<button class="player" id=player2 data-ind=1 onclick="switch_channel(this)">2</button>
 			<button class="player" id=player3 data-ind=2 onclick="switch_channel(this)">3</button>
 			<button class="player" id=player4 data-ind=3 onclick="switch_channel(this)">4</button>
+			<button onclick='channel.send({type: "broadcast",event: "restart"});'>Restart</button>
+			<button onclick='channel.send({type: "broadcast" ,event: "focus" });'>Focus</button>
 		</main>
 		<p id=no_id_error class="hide">There is no id in the URL! Set a URL which has "id=..." part</p>
 		<div id="connection_status"></div>
@@ -67,7 +73,7 @@
 				channel.on('broadcast', { event: 'switch-channel' }, (payload) => console.log(payload))
 					.subscribe((status) => {
 						if (status === 'SUBSCRIBED') {
-							document.getElementById("connection_status").textContent = "CONNECTED";
+							document.body.style.color = "yellow";
 							connected = true;
 						}
 					});
