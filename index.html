@@ -215,10 +215,19 @@
 		}
 
 		window.share = async () => {
+			const s = streams();
 			if (id) {
-				navigator.clipboard.writeText(window.location);
+				const { data, error } = await sb
+					.from('casts')
+					.update([{
+						stream_1: s[0]?.url,
+						stream_2: s[1]?.url,
+						stream_3: s[2]?.url,
+						stream_4: s[3]?.url,
+					}])
+					.eq('id', id)
+					.select('id');
 			} else {
-				const s = streams();
 				const { data, error } = await sb
 					.from('casts')
 					.insert([{
