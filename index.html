@@ -374,10 +374,32 @@
 				muted = false;
 			}
 
+			let fullscreen = false;
+			let timer;
+			function hide_mouse() {
+				if (fullscreen) {
+					document.body.classList.add("hide_cursor");
+				}
+			}
+
+			function show_mouse() {
+				document.body.classList.remove("hide_cursor");
+			}
+
+			function mouse_move() {
+				show_mouse();
+				clearTimeout(timer)
+				timer = setTimeout(hide_mouse, 2000)
+			}
+
+			let cursor_hide_id;
 			if (document.body.requestFullscreen) {
-				document.body.addEventListener('keydown', function (e) {
+				document.body.addEventListener('keydown', (e) => {
 					if (e.key == "f" && document.fullscreenEnabled && players.length > 0) {
 						document.getElementById("main").requestFullscreen();
+						document.getElementById("main").addEventListener(`mousemove`, mouse_move);
+						fullscreen = true;
+						cursor_hide_id = setTimeout(hide_mouse, 2000);
 					} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 						active = parseInt(e.key, 10) - 1;
 						switch_channel();
@@ -401,6 +423,22 @@
 						}
 					}
 				});
+
+				if (document.addEventListener) {
+					document.addEventListener('fullscreenchange', fullscreen_exit, false);
+					document.addEventListener('mozfullscreenchange', fullscreen_exit, false);
+					document.addEventListener('MSFullscreenChange', fullscreen_exit, false);
+					document.addEventListener('webkitfullscreenchange', fullscreen_exit, false);
+				}
+
+				function fullscreen_exit() {
+					if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+						fullscreen = false;
+						show_mouse();
+						document.getElementById("main").removeEventListener(`mousemove`, mouse_move);
+						clearTimeout(cursor_hide_id);
+					}
+				}
 			}
 
 			if (id) {
