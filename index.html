@@ -1,397 +1,410 @@
 <!doctype html>
 <html>
-<head>
-	<title>Split</title>
-	<style>
-		html {
-			scrollbar-gutter: stable;
-		}
+	<head>
+		<title>Split</title>
+		<style>
+			html {
+				scrollbar-gutter: stable;
+			}
 
-		.hide {
-			display: none !important;
-		}
+			.hide {
+				display: none !important;
+			}
 
-		iframe {
-			pointer-events: none;
-		}
+			.disable-pointer iframe {
+				pointer-events: none;
+			}
 
-		.player:not(.focused) {
-			border: 1px transparent solid;
-		}
+			.player:not(.focused) {
+				border: 1px transparent solid;
+			}
 
-		.active:not(.focused) {
-			border: 1px yellow solid;
-		}
+			.active:not(.focused) {
+				border: 1px yellow solid;
+			}
 
-		.focused {
-			position: absolute;
-			left: 0;
-			top: 0;
-			width: 100%;
-			height: 100%;
-		}
+			.focused {
+				position: absolute;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+			}
 
-		.focused>iframe {
-			width: 100%;
-			height: 100%;
-		}
+			.focused>iframe {
+				width: 100%;
+				height: 100%;
+			}
 
-		.row {
-			display: flex;
-		}
+			.row {
+				display: flex;
+			}
 
-		.col {
-			display: flex;
-			flex-flow: column;
-		}
+			.col {
+				display: flex;
+				flex-flow: column;
+			}
 
-		nav {
-			display: flex;
-			justify-content: stretch;
-			gap: 1rem;
-			margin-inline: 1rem
-		}
+			nav {
+				display: flex;
+				justify-content: stretch;
+				gap: 1rem;
+				margin-inline: 1rem
+			}
 
-		main {
-			display: grid;
-			grid-template-rows: 1fr 1fr;
-			grid-template-columns: 1fr 1fr;
-		}
+			main {
+				display: grid;
+				grid-template-rows: 1fr 1fr;
+				grid-template-columns: 1fr 1fr;
+			}
 
-		.stream_id {
-			padding: 4px;
-		}
+			.stream_id {
+				padding: 4px;
+			}
 
-		button {
-			background-color: antiquewhite;
-			padding: 4px;
-			font-weight: bold;
-		}
+			button {
+				background-color: antiquewhite;
+				padding: 4px;
+				font-weight: bold;
+			}
 
-		.hide_cursor {
-			cursor: none;
-		}
-	</style>
-</head>
-<body style="margin: 0; background-color: black; color: white">
-	<nav>
-		<div class="col">
-			<span>Add up to 4 YouTube or Twitch URLs and press START which loads muted videos</span>
-			<!-- TODO add labels form these inputs -->
-			<div class="row" style="gap: 4px">
-				<div>
-					<div class="row" style="gap: 4px">
-						<label>1</label>
-						<input size="100" class="stream_id" id=player1_stream>
+			.hide_cursor {
+				cursor: none;
+			}
+		</style>
+	</head>
+	<body style="margin: 0; background-color: black; color: white">
+		<nav>
+			<div class="col">
+				<span>Add up to 4 YouTube or Twitch URLs and press START which loads muted videos</span>
+				<!-- TODO add labels form these inputs -->
+				<div class="row" style="gap: 4px">
+					<div>
+						<div class="row" style="gap: 4px">
+							<label>1</label>
+							<input size="100" class="stream_id" id=player1_stream>
+						</div>
+						<div class="row" style="gap: 4px">
+							<label>2</label>
+							<input size="100" class="stream_id" id=player2_stream>
+						</div>
+						<div class="row" style="gap: 4px">
+							<label>3</label>
+							<input size="100" class="stream_id" id=player3_stream>
+						</div>
+						<div class="row" style="gap: 4px">
+							<label>4</label>
+							<input size="100" class="stream_id" id=player4_stream>
+						</div>
 					</div>
-					<div class="row" style="gap: 4px">
-						<label>2</label>
-						<input size="100" class="stream_id" id=player2_stream>
-					</div>
-					<div class="row" style="gap: 4px">
-						<label>3</label>
-						<input size="100" class="stream_id" id=player3_stream>
-					</div>
-					<div class="row" style="gap: 4px">
-						<label>4</label>
-						<input size="100" class="stream_id" id=player4_stream>
-					</div>
+					<button accesskey="s" class="col" onclick="start()" style="justify-content: center; padding: 1rem">
+						<span>START</span>
+						<span>(Alt+S)</span>
+					</button>
 				</div>
-				<button accesskey="s" class="col" onclick="start()" style="justify-content: center; padding: 1rem">
-					<span>START</span>
-					<span>(Alt+S)</span>
-				</button>
 			</div>
-		</div>
-		<div class="col" style="flex-grow: 2; white-space: nowrap;">
-			<span>Hotkeys</span>
-			<span><strong>1</strong>, <strong>2</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
-			<span><strong>E</strong> to focus/unfocus the active stream</span>
-			<span><strong>M</strong> to mute/unmute the active stream</span>
-			<span><strong>F</strong> to go fullscreen and hide menu</span>
-			<div>
-				<span id=connection_status></span>
+			<div class="col" style="flex-grow: 2; white-space: nowrap;">
+				<span>Hotkeys</span>
+				<span><strong>1</strong>, <strong>2</strong>, <strong>3</strong> or <strong>4</strong> to switch stream</span>
+				<span><strong>E</strong> to focus/unfocus the active stream</span>
+				<span><strong>M</strong> to mute/unmute the active stream</span>
+				<span><strong>F</strong> to go fullscreen and hide menu</span>
+				<div>
+					<span id=connection_status></span>
+				</div>
+				<div id=login_box class="row hide">
+					<input id=login-email type="email" />
+					<button onclick="login()">LOGIN</button>
+				</div>
+				<div id=user_box class="row hide">
+					<span id=user-email></span>
+					<button id=update_btn onclick="update()">UPDATE</button>
+					<a id=share_url>Share URL</a>
+				</div>
+				<div>
+					<input type=checkbox id=mouse-pointer onchange="update_mouse_pointer(this)" />
+					<label for=mouse-pointer>Mouse Pointer</label>
+				</div>
 			</div>
-			<div id=login_box class="row hide">
-				<input id=login-email type="email" />
-				<button onclick="login()">LOGIN</button>
-			</div>
-			<div id=user_box class="row hide">
-				<span id=user-email></span>
-				<button id=update_btn onclick="update()">UPDATE</button>
-				<a id=share_url>Share URL</a>
-			</div>
-		</div>
-	</nav>
-	<main id=main class="hide">
-		<div class="player" id=player1></div>
-		<div class="player" id=player2></div>
-		<div class="player" id=player3></div>
-		<div class="player" id=player4></div>
-	</main>
-	<script src=https://www.youtube.com/iframe_api></script>
-	<script src=https://player.twitch.tv/js/embed/v1.js></script>
-	<script src=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2></script>
-	<script type="module">
-		const url = new URL(window.location);
-		let id = url.searchParams.get("id");
-		let caster_id = null;
-		let focused = false;
-		let active = 0;
-		let muted = true;
-		document.querySelectorAll(".player")[active].classList.toggle("active");
+		</nav>
+		<main id=main class="hide disable-pointer">
+			<div class="player" id=player1></div>
+			<div class="player" id=player2></div>
+			<div class="player" id=player3></div>
+			<div class="player" id=player4></div>
+		</main>
+		<script src=https://www.youtube.com/iframe_api></script>
+		<script src=https://player.twitch.tv/js/embed/v1.js></script>
+		<script src=https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2></script>
+		<script type="module">
+			const url = new URL(window.location);
+			let id = url.searchParams.get("id");
+			let caster_id = null;
+			let focused = false;
+			let active = 0;
+			let muted = true;
+			document.querySelectorAll(".player")[active].classList.toggle("active");
 
-		function focus() {
-			document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
-			const player = document.getElementById(`player${active + 1}`);
-			focused = !focused;
-			player.classList.toggle("focused");
-			player.classList.toggle("hide");
-		}
-
-		function restart() {
-			window.location.reload();
-		}
-
-		const sb = supabase.createClient(
-			'https://voatjrqrfzayxejnovtl.supabase.co',
-			'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXRqcnFyZnpheXhlam5vdnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjU5MTQxODEsImV4cCI6MTk4MTQ5MDE4MX0.gkepgBvJ5SKk4mWt6k90i9zsUWE6weOA7MhjZZDBjjw',
-			{
-				realtime: {
-					params: {
-						eventsPerSecond: 10,
-					},
-				},
-			}
-		)
-
-		window.login = async () => {
-			await sb.auth.signInWithOtp({
-				email: document.getElementById("login-email").value
-			});
-		}
-
-		const { data: { user } } = await sb.auth.getUser();
-		if (user) {
-			document.getElementById("user_box").classList.remove("hide");
-			document.getElementById("login_box").classList.add("hide");
-
-			document.getElementById("user-email").textContent = user.email;
-		} else {
-			document.getElementById("user_box").classList.add("hide");
-			document.getElementById("login_box").classList.remove("hide");
-		}
-
-		if (id) {
-			const { data, error } = await sb.from('casts').select().eq('id', id);
-			if (data && data.length == 1 && !error) {
-				const cast = data[0];
-				const streams = document.querySelectorAll(".stream_id");
-				streams[0].value = cast.stream_1 ? cast.stream_1 : "";
-				streams[1].value = cast.stream_2 ? cast.stream_2 : "";
-				streams[2].value = cast.stream_3 ? cast.stream_3 : "";
-				streams[3].value = cast.stream_4 ? cast.stream_4 : "";
-
-				caster_id = cast.user_id;
-			}
-
-			let connected = false;
-			const admin = user && user.id === caster_id;
-			const channel = sb.channel(id)
-			channel.on('broadcast', { event: 'switch-channel' }, (e) => {
-				active = parseInt(e.payload, 10);
-				switch_channel();
-			}).on('broadcast', { event: 'focus' }, (e) => {
-				focus();
-			}).on('broadcast', { event: 'restart' }, (e) => {
-				restart();
-			}).subscribe((status) => {
-				if (status === 'SUBSCRIBED') {
-					document.getElementById("user-email").style.color="yellow"
-					connected = true;
-				}
-			});
-
-			document.getElementById("update_btn").innerText="UPDATE"
-		} else {
-			document.getElementById("update_btn").innerText="SAVE"
-		}
-
-		window.update = async () => {
-			const s = streams();
-			if (id) {
-				const { data, error } = await sb
-					.from('casts')
-					.update([{
-						stream_1: s[0]?.url,
-						stream_2: s[1]?.url,
-						stream_3: s[2]?.url,
-						stream_4: s[3]?.url,
-					}])
-					.eq('id', id)
-					.select('id');
-			} else {
-				const { data, error } = await sb
-					.from('casts')
-					.insert([{
-						stream_1: s[0]?.url,
-						stream_2: s[1]?.url,
-						stream_3: s[2]?.url,
-						stream_4: s[3]?.url,
-					}])
-					.select('id');
-
-				if (data && data.length == 1 && !error) {
-					id = data[0].id;
-					navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?id=" + id);
+			window.update_mouse_pointer = (cb) => {
+				const main = document.getElementById('main');
+				if (cb.checked) {
+					main.classList.remove("disable-pointer");
 				} else {
-					console.error(error);
+					main.classList.add("disable-pointer")
 				}
 			}
-		}
 
-		function mute(player) {
-			if (player.kind == "yt")
-				player.player.mute();
-			else if (player.kind == "twitch") {
-				player.player.setVolume(0.0);
-				player.player.setMuted(true);
-			}
-		}
-
-		function unmute(player) {
-			if (player.kind == "yt") {
-				player.player.unMute();
-			} else if (player.kind == "twitch") {
-				player.player.setVolume(1.0);
-				player.player.setMuted(false);
-			}
-		}
-
-		function destroy(player) {
-			if (player.kind == "yt") {
-				player.player.destroy();
-			} else if (player.kind == "twitch") {
-				player.elem.innerHTML = "";
+			function focus() {
+				document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
+				const player = document.getElementById(`player${active + 1}`);
+				focused = !focused;
+				player.classList.toggle("focused");
+				player.classList.toggle("hide");
 			}
 
-			// delete player;
-		}
+			function restart() {
+				window.location.reload();
+			}
 
-		let players = [];
-		function streams() {
-			let r = [];
-			document.querySelectorAll(".stream_id").forEach(e => {
-				if (e.value.length > 0) {
-					const url = new URL(e.value);
-					if (url.hostname === "youtube.com" || url.hostname === "www.youtube.com") {
+			const sb = supabase.createClient(
+				'https://voatjrqrfzayxejnovtl.supabase.co',
+				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXRqcnFyZnpheXhlam5vdnRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjU5MTQxODEsImV4cCI6MTk4MTQ5MDE4MX0.gkepgBvJ5SKk4mWt6k90i9zsUWE6weOA7MhjZZDBjjw',
+				{
+					realtime: {
+						params: {
+							eventsPerSecond: 10,
+						},
+					},
+				}
+			)
+
+			window.login = async () => {
+				await sb.auth.signInWithOtp({
+					email: document.getElementById("login-email").value
+				});
+			}
+
+			const { data: { user } } = await sb.auth.getUser();
+			if (user) {
+				document.getElementById("user_box").classList.remove("hide");
+				document.getElementById("login_box").classList.add("hide");
+
+				document.getElementById("user-email").textContent = user.email;
+			} else {
+				document.getElementById("user_box").classList.add("hide");
+				document.getElementById("login_box").classList.remove("hide");
+			}
+
+			if (id) {
+				const { data, error } = await sb.from('casts').select().eq('id', id);
+				if (data && data.length == 1 && !error) {
+					const cast = data[0];
+					const streams = document.querySelectorAll(".stream_id");
+					streams[0].value = cast.stream_1 ? cast.stream_1 : "";
+					streams[1].value = cast.stream_2 ? cast.stream_2 : "";
+					streams[2].value = cast.stream_3 ? cast.stream_3 : "";
+					streams[3].value = cast.stream_4 ? cast.stream_4 : "";
+
+					caster_id = cast.user_id;
+				}
+
+				let connected = false;
+				const admin = user && user.id === caster_id;
+				const channel = sb.channel(id)
+				channel.on('broadcast', { event: 'switch-channel' }, (e) => {
+					active = parseInt(e.payload, 10);
+					switch_channel();
+				}).on('broadcast', { event: 'focus' }, (e) => {
+					focus();
+				}).on('broadcast', { event: 'restart' }, (e) => {
+					restart();
+				}).subscribe((status) => {
+					if (status === 'SUBSCRIBED') {
+						document.getElementById("user-email").style.color = "yellow"
+						connected = true;
+					}
+				});
+
+				document.getElementById("update_btn").innerText = "UPDATE"
+			} else {
+				document.getElementById("update_btn").innerText = "SAVE"
+			}
+
+			window.update = async () => {
+				const s = streams();
+				if (id) {
+					const { data, error } = await sb
+						.from('casts')
+						.update([{
+							stream_1: s[0]?.url,
+							stream_2: s[1]?.url,
+							stream_3: s[2]?.url,
+							stream_4: s[3]?.url,
+						}])
+						.eq('id', id)
+						.select('id');
+				} else {
+					const { data, error } = await sb
+						.from('casts')
+						.insert([{
+							stream_1: s[0]?.url,
+							stream_2: s[1]?.url,
+							stream_3: s[2]?.url,
+							stream_4: s[3]?.url,
+						}])
+						.select('id');
+
+					if (data && data.length == 1 && !error) {
+						id = data[0].id;
+						window.location = window.location.origin + window.location.pathname + "?id=" + id;
+					} else {
+						console.error(error);
+					}
+				}
+			}
+
+			function mute(player) {
+				if (player.kind == "yt")
+					player.player.mute();
+				else if (player.kind == "twitch") {
+					player.player.setVolume(0.0);
+					player.player.setMuted(true);
+				}
+			}
+
+			function unmute(player) {
+				if (player.kind == "yt") {
+					player.player.unMute();
+				} else if (player.kind == "twitch") {
+					player.player.setVolume(1.0);
+					player.player.setMuted(false);
+				}
+			}
+
+			function destroy(player) {
+				if (player.kind == "yt") {
+					player.player.destroy();
+				} else if (player.kind == "twitch") {
+					player.elem.innerHTML = "";
+				}
+
+				// delete player;
+			}
+
+			let players = [];
+			function streams() {
+				let r = [];
+				document.querySelectorAll(".stream_id").forEach(e => {
+					if (e.value.length > 0) {
+						const url = new URL(e.value);
+						if (url.hostname === "youtube.com" || url.hostname === "www.youtube.com") {
+							const videoId = url.searchParams.get("v");
+							if (videoId) {
+								r.push({ kind: 'yt', url: e.value });
+							}
+						} else if (url.hostname === "twitch.tv" || url.hostname === "www.twitch.tv") {
+							r.push({ kind: 'twitch', url: e.value });
+						}
+					}
+				});
+
+				return r;
+			}
+			window.start = () => {
+				document.getElementById("main").classList.remove("hide");
+				for (const player of players) {
+					destroy(player);
+				}
+				players = [];
+				streams().forEach(s => {
+					const url = new URL(s.url);
+					if (s.kind === 'yt') {
 						const videoId = url.searchParams.get("v");
 						if (videoId) {
-							r.push({ kind: 'yt', url: e.value });
+							players.push({
+								kind: s.kind,
+								player: new YT.Player(`player${players.length + 1}`, {
+									width: (screen.width - 2) / 2,
+									height: (screen.height - 2) / 2,
+									videoId,
+									playerVars: {
+										'playsinline': 1,
+										"autoplay": 1,
+										"mute": 1,
+										"controls": 0,
+										"modestbranding": 1,
+										"disablekb": 1,
+										"cc_load_policy": 0,
+										"fs": 0,
+										"iv_load_policy": 3
+									}
+								}),
+								raw: s.url
+							});
 						}
-					} else if (url.hostname === "twitch.tv" || url.hostname === "www.twitch.tv") {
-						r.push({ kind: 'twitch', url: e.value });
-					}
-				}
-			});
-
-			return r;
-		}
-		window.start = () => {
-			document.getElementById("main").classList.remove("hide");
-			for (const player of players) {
-				destroy(player);
-			}
-			players = [];
-			streams().forEach(s => {
-				const url = new URL(s.url);
-				if (s.kind === 'yt') {
-					const videoId = url.searchParams.get("v");
-					if (videoId) {
+					} else if (s.kind === "twitch") {
+						const options = {
+							width: (screen.width - 2) / 2,
+							height: (screen.height - 2) / 2,
+							channel: url.pathname.substring(1),
+						};
 						players.push({
 							kind: s.kind,
-							player: new YT.Player(`player${players.length + 1}`, {
-								width: (screen.width - 2) / 2,
-								height: (screen.height - 2) / 2,
-								videoId,
-								playerVars: {
-									'playsinline': 1,
-									"autoplay": 1,
-									"mute": 1,
-									"controls": 0,
-									"modestbranding": 1,
-									"disablekb": 1,
-									"cc_load_policy": 0,
-									"fs": 0,
-									"iv_load_policy": 3
-								}
-							}),
-							raw: s.url
+							player: new Twitch.Player(`player${players.length + 1}`, options),
+							raw: s.url,
+							muted: true, // TODO mute twitch stream at the start
+							elem: document.getElementById(`player${players.length + 1}`)
 						});
 					}
-				} else if (s.kind === "twitch") {
-					const options = {
-						width: (screen.width - 2) / 2,
-						height: (screen.height - 2) / 2,
-						channel: url.pathname.substring(1),
-					};
-					players.push({
-						kind: s.kind,
-						player: new Twitch.Player(`player${players.length + 1}`, options),
-						raw: s.url,
-						muted: true, // TODO mute twitch stream at the start
-						elem: document.getElementById(`player${players.length + 1}`)
-					});
-				}
-			});
-		}
-
-		function mute_all() {
-			for (const player of players) {
-				mute(player);
+				});
 			}
 
-			document.querySelectorAll(".player").forEach(e => e.classList.remove("active"))
-		}
-
-		function switch_channel() {
-			mute_all();
-			unmute(players[active]);
-			document.querySelectorAll(".player")[active].classList.toggle("active");
-			muted = false;
-		}
-
-		if (document.body.requestFullscreen) {
-			document.body.addEventListener('keydown', function (e) {
-				if (e.key == "f" && document.fullscreenEnabled && players.length > 0) {
-					document.getElementById("main").requestFullscreen();
-				} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
-					active = parseInt(e.key, 10) - 1;
-					switch_channel();
-					// if (admin && connected) {
-					// 	channel.send({
-					// 		type: 'broadcast',
-					// 		event: 'switch-channel',
-					// 		payload: active,
-					// 	});
-					// }
-				} else if (e.key == "e") {
-					focus();
-				} else if (e.key == "m" && players.length > 0) {
-					if (muted && active >= 0) {
-						unmute(players[active]);
-						document.querySelectorAll(".player")[active].classList.toggle("active");
-						muted = false;
-					} else {
-						muted = true;
-						mute_all();
-					}
+			function mute_all() {
+				for (const player of players) {
+					mute(player);
 				}
-			});
-		}
 
-		if (id) {
-			start();
-		}
-	</script>
-</body>
+				document.querySelectorAll(".player").forEach(e => e.classList.remove("active"))
+			}
+
+			function switch_channel() {
+				mute_all();
+				unmute(players[active]);
+				document.querySelectorAll(".player")[active].classList.toggle("active");
+				muted = false;
+			}
+
+			if (document.body.requestFullscreen) {
+				document.body.addEventListener('keydown', function (e) {
+					if (e.key == "f" && document.fullscreenEnabled && players.length > 0) {
+						document.getElementById("main").requestFullscreen();
+					} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
+						active = parseInt(e.key, 10) - 1;
+						switch_channel();
+						// if (admin && connected) {
+						// 	channel.send({
+						// 		type: 'broadcast',
+						// 		event: 'switch-channel',
+						// 		payload: active,
+						// 	});
+						// }
+					} else if (e.key == "e") {
+						focus();
+					} else if (e.key == "m" && players.length > 0) {
+						if (muted && active >= 0) {
+							unmute(players[active]);
+							document.querySelectorAll(".player")[active].classList.toggle("active");
+							muted = false;
+						} else {
+							muted = true;
+							mute_all();
+						}
+					}
+				});
+			}
+
+			if (id) {
+				start();
+			}
+		</script>
+	</body>
