@@ -160,11 +160,28 @@
 			}
 
 			function focus() {
-				document.querySelectorAll(".player").forEach(e => e.classList.toggle("hide"))
 				const player = document.getElementById(`player${active + 1}`);
+				if (focused) {
+					document.querySelectorAll(".player").forEach(e => e.classList.remove("hide"));
+					player.classList.remove("focused")
+				} else {
+					document.querySelectorAll(".player").forEach(e => e.classList.add("hide"));
+					player.classList.add("focused");
+					player.classList.remove("hide");
+				}
 				focused = !focused;
-				player.classList.toggle("focused");
-				player.classList.toggle("hide");
+			}
+
+			function switch_focus() {
+				document.querySelectorAll(".player").forEach(e => {
+					if (e.id == `player${active + 1}`) {
+						e.classList.remove("hide");
+						e.classList.add("focused");
+					} else {
+						e.classList.add("hide");
+						e.classList.remove("focused");
+					}
+				});
 			}
 
 			function restart() {
@@ -408,6 +425,9 @@
 					} else if (e.key == "1" || e.key == "2" || e.key == "3" || e.key == "4") {
 						active = parseInt(e.key, 10) - 1;
 						switch_channel();
+						if (focused) {
+							switch_focus();
+						}
 						// if (admin && connected) {
 						// 	channel.send({
 						// 		type: 'broadcast',
