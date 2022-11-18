@@ -145,6 +145,11 @@
 			let muted = true;
 			document.querySelectorAll(".player")[active].classList.toggle("active");
 
+			window.onresize = document.querySelectorAll(".player").forEach(e => {
+				e.style.width = `${(screen.width - 2) / 2}px`;
+				e.style.height = `${(screen.height - 2) / 2}px`;
+			});
+			
 			window.update_mouse_pointer = (cb) => {
 				const main = document.getElementById('main');
 				if (cb.checked) {
