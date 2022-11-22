@@ -236,6 +236,9 @@
 				channel.on('broadcast', { event: 'switch-channel' }, (e) => {
 					active = parseInt(e.payload, 10);
 					switch_channel();
+					if (focused) {
+						switch_focus();
+					}
 				}).on('broadcast', { event: 'focus' }, (e) => {
 					focus();
 				}).on('broadcast', { event: 'restart' }, (e) => {
